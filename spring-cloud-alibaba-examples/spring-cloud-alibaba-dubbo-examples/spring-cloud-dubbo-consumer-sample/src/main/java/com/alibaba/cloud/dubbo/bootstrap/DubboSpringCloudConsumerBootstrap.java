@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.cloud.dubbo.annotation.DubboTransported;
+import com.alibaba.cloud.dubbo.service.EchoService;
 import com.alibaba.cloud.dubbo.service.RestService;
 import com.alibaba.cloud.dubbo.service.User;
 import com.alibaba.cloud.dubbo.service.UserService;
@@ -65,6 +66,9 @@ public class DubboSpringCloudConsumerBootstrap {
 	@DubboReference
 	private UserService userService;
 
+	@DubboReference
+	private EchoService echoService;
+
 	@DubboReference(version = "1.0.0", protocol = "dubbo")
 	private RestService restService;
 
@@ -82,6 +86,24 @@ public class DubboSpringCloudConsumerBootstrap {
 	@Autowired
 	@LoadBalanced
 	private RestTemplate restTemplate;
+
+	public static void main(String[] args) {
+		new SpringApplicationBuilder(DubboSpringCloudConsumerBootstrap.class)
+//				.properties("spring.profiles.active=nacos").run(args);
+				.properties("spring.profiles.active=zookeeper").run(args);
+	}
+
+//	@Bean
+//	public ApplicationRunner echoServiceRunner() {
+//		return arguments -> {
+//
+//			for(int i=0; i<500000; i++){
+//				System.out.println("No."+i+" "+echoService.echo("Hello,World"));
+//				Thread.sleep(2000L);
+//			}
+//
+//		};
+//	}
 
 	@Bean
 	public ApplicationRunner userServiceRunner() {
@@ -209,10 +231,6 @@ public class DubboSpringCloudConsumerBootstrap {
 		return new RestTemplate();
 	}
 
-	public static void main(String[] args) {
-		new SpringApplicationBuilder(DubboSpringCloudConsumerBootstrap.class)
-				.properties("spring.profiles.active=nacos").run(args);
-	}
 
 	@FeignClient("${provider.application.name}")
 	public interface FeignRestService {

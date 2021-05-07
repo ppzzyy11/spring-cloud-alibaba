@@ -34,11 +34,11 @@ public class SpringCloudServiceDiscovery extends AbstractServiceDiscovery {
 	public SpringCloudServiceDiscovery() {
 	}
 
-	@Override
+	// @Override
 	public void doRegister(ServiceInstance serviceInstance) {
 	}
 
-	@Override
+	// @Override
 	public void doUpdate(ServiceInstance serviceInstance) {
 	}
 

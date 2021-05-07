@@ -8,6 +8,7 @@ dubbo:
   consumer:
     check: false
 
+
 server:
   port: 0
 

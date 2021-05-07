@@ -42,8 +42,8 @@ import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  */
-@DubboService(version = "1.0.0", protocol = { "dubbo", "rest" })
-@Path("/")
+// @DubboService(version = "1.0.0", protocol = { "dubbo", "rest" })
+// @Path("/")
 public class StandardRestService implements RestService {
 
 	private Logger logger = LoggerFactory.getLogger(getClass());

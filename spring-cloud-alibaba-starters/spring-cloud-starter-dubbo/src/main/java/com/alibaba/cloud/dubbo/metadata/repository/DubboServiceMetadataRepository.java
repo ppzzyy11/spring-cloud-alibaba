@@ -249,7 +249,12 @@ public class DubboServiceMetadataRepository
 
 	@Override
 	public void afterSingletonsInstantiated() {
-		initializeMetadata();
+		try{
+			initializeMetadata();
+		}catch (Exception e){
+			logger.error("Error", e);
+		}
+
 	}
 
 	/**
