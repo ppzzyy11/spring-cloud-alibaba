@@ -14,27 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.alibaba.cloud.dubbo.service;
-
-import org.apache.dubbo.config.annotation.DubboService;
-import org.apache.dubbo.rpc.RpcContext;
-
-import static java.lang.String.format;
+package org.apache.dubbo.config.bootstrap;
 
 /**
- * The implementation of {@link com.alibaba.cloud.dubbo.service.EchoService}
+ * Echo Service
  *
- * @see com.alibaba.cloud.dubbo.service.EchoService
  * @since 2.7.5
  */
-@DubboService(protocol = "dubbo")
-public class EchoServiceImpl implements EchoService {
+public interface EchoService {
 
-	@Override
-	public String echo(String message) {
-		RpcContext rpcContext = RpcContext.getContext();
-		return format("[%s:%s] ECHO - %s", rpcContext.getLocalHost(),
-				rpcContext.getLocalPort(), message);
-	}
+    String GROUP = "DEFAULT";
 
+    String VERSION = "1.0.0";
+
+    String echo(String message);
 }

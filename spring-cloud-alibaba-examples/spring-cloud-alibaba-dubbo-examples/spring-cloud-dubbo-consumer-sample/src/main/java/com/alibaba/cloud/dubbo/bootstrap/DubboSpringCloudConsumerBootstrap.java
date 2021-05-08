@@ -20,12 +20,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.cloud.dubbo.annotation.DubboTransported;
-import com.alibaba.cloud.dubbo.service.EchoService;
 import com.alibaba.cloud.dubbo.service.RestService;
 import com.alibaba.cloud.dubbo.service.User;
 import com.alibaba.cloud.dubbo.service.UserService;
 import org.apache.dubbo.config.annotation.DubboReference;
 
+//import bootstrap.EchoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
@@ -66,8 +66,8 @@ public class DubboSpringCloudConsumerBootstrap {
 	@DubboReference
 	private UserService userService;
 
-	@DubboReference
-	private EchoService echoService;
+//	@DubboReference
+//	private EchoService echoService;
 
 	@DubboReference(version = "1.0.0", protocol = "dubbo")
 	private RestService restService;
@@ -89,21 +89,39 @@ public class DubboSpringCloudConsumerBootstrap {
 
 	public static void main(String[] args) {
 		new SpringApplicationBuilder(DubboSpringCloudConsumerBootstrap.class)
-//				.properties("spring.profiles.active=nacos").run(args);
-				.properties("spring.profiles.active=zookeeper").run(args);
+				.properties("spring.profiles.active=nacos").run(args);
+//				.properties("spring.profiles.active=zookeeper").run(args);
 	}
 
-//	@Bean
-//	public ApplicationRunner echoServiceRunner() {
-//		return arguments -> {
+	@Bean
+	public ApplicationRunner echoServiceRunner() {
+		return arguments -> {
+
+//			DubboBootstrap bootstrap = DubboBootstrap.getInstance();
+////			bootstrap.stop();
+//			bootstrap
+////					.application("zookeeper-dubbo-consumer", app -> app.metadata(DEFAULT_METADATA_STORAGE_TYPE))
+//					.registry("zookeeper", builder -> builder.address("zookeeper://127.0.0.1:2181")
+////                        .parameter(REGISTRY_TYPE_KEY, SERVICE_REGISTRY_TYPE)//force application
+//									.useAsConfigCenter(true)
+//									.useAsMetadataCenter(false)
+//					)
+//					.reference("echo", builder -> builder.interfaceClass(org.apache.dubbo.config.bootstrap.EchoService.class).protocol("dubbo").services("zookeeper-dubbo-provider"))
+//					.start();
 //
-//			for(int i=0; i<500000; i++){
-//				System.out.println("No."+i+" "+echoService.echo("Hello,World"));
+//			org.apache.dubbo.config.bootstrap.EchoService echoService = bootstrap.getCache().get(EchoService.class);
+
+//			for (int i = 0; i < 5000000; i++) {
+//				System.out.println(echoService.echo("Hello,World"));
 //				Thread.sleep(2000L);
-//			}
 //
-//		};
-//	}
+////            System.out.println(userService.getUser(i * 1L));
+//			}
+
+
+
+		};
+	}
 
 	@Bean
 	public ApplicationRunner userServiceRunner() {

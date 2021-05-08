@@ -17,12 +17,7 @@
 package com.alibaba.cloud.dubbo.service;
 
 import java.beans.PropertyEditorSupport;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -32,6 +27,7 @@ import com.alibaba.cloud.dubbo.metadata.DubboRestServiceMetadata;
 import com.alibaba.cloud.dubbo.metadata.ServiceRestMetadata;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.utils.CollectionUtils;
+import org.apache.dubbo.config.ReferenceConfig;
 import org.apache.dubbo.config.RegistryConfig;
 import org.apache.dubbo.config.spring.ReferenceBean;
 import org.apache.dubbo.rpc.service.GenericService;
@@ -44,7 +40,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.DataBinder;
+import org.springframework.validation.ObjectError;
 
+import static java.util.Collections.EMPTY_MAP;
 import static java.util.Collections.emptyMap;
 import static org.apache.dubbo.common.constants.CommonConstants.GROUP_KEY;
 import static org.apache.dubbo.common.constants.CommonConstants.VERSION_KEY;
@@ -59,7 +57,7 @@ public class DubboGenericServiceFactory {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	private final ConcurrentMap<String, ReferenceBean<GenericService>> cache = new ConcurrentHashMap<>();
+	private final ConcurrentMap<String, ReferenceConfig<GenericService>> cache = new ConcurrentHashMap<>();
 
 	@Autowired
 	private ObjectProvider<List<RegistryConfig>> registryConfigs;
@@ -67,21 +65,21 @@ public class DubboGenericServiceFactory {
 	public GenericService create(DubboRestServiceMetadata dubboServiceMetadata,
 			Map<String, Object> dubboTranslatedAttributes) {
 
-		ReferenceBean<GenericService> referenceBean = build(
+		ReferenceConfig<GenericService> referenceBean = build(
 				dubboServiceMetadata.getServiceRestMetadata(), dubboTranslatedAttributes);
 
-		return referenceBean == null ? null : (GenericService) referenceBean.getObject();
+		return referenceBean == null ? null :  referenceBean.get();
 	}
 
 	public GenericService create(String serviceName, Class<?> serviceClass,
 			String version) {
 		String interfaceName = serviceClass.getName();
-		ReferenceBean<GenericService> referenceBean = build(interfaceName, version,
+		ReferenceConfig<GenericService> referenceBean = build(interfaceName, version,
 				serviceName, emptyMap());
-		return (GenericService) referenceBean.getObject();
+		return referenceBean.get();
 	}
 
-	private ReferenceBean<GenericService> build(ServiceRestMetadata serviceRestMetadata,
+	private ReferenceConfig<GenericService> build(ServiceRestMetadata serviceRestMetadata,
 			Map<String, Object> dubboTranslatedAttributes) {
 		String urlValue = serviceRestMetadata.getUrl();
 		URL url = URL.valueOf(urlValue);
@@ -92,20 +90,22 @@ public class DubboGenericServiceFactory {
 		return build(interfaceName, version, group, dubboTranslatedAttributes);
 	}
 
-	private ReferenceBean<GenericService> build(String interfaceName, String version,
+	private ReferenceConfig<GenericService> build(String interfaceName, String version,
 			String group, Map<String, Object> dubboTranslatedAttributes) {
 
-		String key = createKey(interfaceName, version, group, dubboTranslatedAttributes);
+		Map<String, Object> dubboTranslatedAttributes2 = new HashMap<>();
+		dubboTranslatedAttributes2.putAll(dubboTranslatedAttributes);
 
+		String key = createKey(interfaceName, version, group, dubboTranslatedAttributes);
 		return cache.computeIfAbsent(key, k -> {
-			ReferenceBean<GenericService> referenceBean = new ReferenceBean<>();
-			referenceBean.getReferenceConfig().setGeneric(true);
-			referenceBean.getReferenceConfig().setInterface(interfaceName);
-			referenceBean.getReferenceConfig().setVersion(version);
-			referenceBean.getReferenceConfig().setGroup(group);
-			referenceBean.getReferenceConfig().setCheck(false);
-			bindReferenceBean(referenceBean, dubboTranslatedAttributes);
-			return referenceBean;
+//			dubboTranslatedAttributes
+			ReferenceConfig referenceConfig = new ReferenceConfig();
+			referenceConfig.setGeneric("true");
+			referenceConfig.setInterface(interfaceName);
+			referenceConfig.setVersion(version);
+			referenceConfig.setGroup(group);
+			referenceConfig.setCheck(false);
+			return referenceConfig;
 		});
 	}
 
@@ -164,18 +164,18 @@ public class DubboGenericServiceFactory {
 		Set<String> removeGroups = new HashSet<>(cache.keySet());
 		for (String key : removeGroups) {
 			if (key.contains(serviceName)) {
-				ReferenceBean<GenericService> referenceBean = cache.remove(key);
+				ReferenceConfig<GenericService> referenceBean = cache.remove(key);
 				referenceBean.destroy();
 			}
 		}
 	}
 
 	private void destroyReferenceBeans() {
-		Collection<ReferenceBean<GenericService>> referenceBeans = cache.values();
+		Collection<ReferenceConfig<GenericService>> referenceBeans = cache.values();
 		if (logger.isInfoEnabled()) {
 			logger.info("The Dubbo GenericService ReferenceBeans are destroying...");
 		}
-		for (ReferenceBean referenceBean : referenceBeans) {
+		for (ReferenceConfig referenceBean : referenceBeans) {
 			referenceBean.destroy(); // destroy ReferenceBean
 			if (logger.isInfoEnabled()) {
 				logger.info("Destroyed the ReferenceBean  : {} ", referenceBean);

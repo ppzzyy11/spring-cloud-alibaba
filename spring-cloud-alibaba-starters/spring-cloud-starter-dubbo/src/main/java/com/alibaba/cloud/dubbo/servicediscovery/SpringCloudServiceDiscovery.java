@@ -32,6 +32,7 @@ import org.apache.dubbo.registry.client.event.listener.ServiceInstancesChangedLi
 public class SpringCloudServiceDiscovery extends AbstractServiceDiscovery {
 
 	public SpringCloudServiceDiscovery() {
+		super();
 	}
 
 	// @Override
